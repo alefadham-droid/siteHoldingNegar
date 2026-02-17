@@ -3,9 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماشین حساب مصرف دان - مرغداری</title>
+    <title>ماشین حساب سرانه مصرف دان - مرغداری</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .calculator-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 1.1em;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .result-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .result-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        .result-unit {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .status-low {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status-normal {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .status-high {
+            background: #f44336;
+            color: white;
+        }
+        
+        .info-box {
+            background: #e8f5e9;
+            border-right: 5px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .info-box h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-box li {
+            margin-bottom: 10px;
+            color: #555;
+            padding-right: 25px;
+            position: relative;
+        }
+        
+        .info-box li:before {
+            content: "✅";
+            position: absolute;
+            right: 0;
+        }
+        
+        .table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+        }
+        
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .comparison-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .comparison-item {
+            text-align: center;
+        }
+        
+        .comparison-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,25 +181,147 @@
             <a href="../index.html" class="btn" style="margin-top: 20px;">🏠 بازگشت به صفحه اصلی</a>
         </header>
 
-        <div class="data-table-section">
-            <div class="calculator-form">
-                <div class="form-group">
-                    <label>مصرف دان روزانه (کیلوگرم):</label>
-                    <input type="number" id="dailyFeed" placeholder="مثال: 150">
-                </div>
-                <div class="form-group">
-                    <label>وزن متوسط هر پرنده (گرم):</label>
-                    <input type="number" id="birdWeight" placeholder="مثال: 2000">
-                </div>
-                <div class="form-group">
-                    <label>سن پرنده (روز):</label>
-                    <input type="number" id="birdAge" placeholder="مثال: 35">
-                </div>
-                <button class="btn btn-success" onclick="calculateFeedConversion()">محاسبه سرانه مصرف</button>
-            </div>
+        <div class="calculator-container">
+            <div class="data-table-section">
+                <h2>📝 محاسبه سرانه مصرف دان</h2>
+                
+                <div class="calculator-form">
+                    <!-- مصرف دان روزانه -->
+                    <div class="form-group">
+                        <label>🥣 مصرف دان روزانه (کیلوگرم):</label>
+                        <input type="number" id="feedDailyFeed" min="0" max="10000" value="850" step="0.1" placeholder="مثال: 850">
+                        <small style="color: #666;">مقدار کل دان مصرفی در یک روز</small>
+                    </div>
 
-            <div class="results-section" id="feedResult">
-                <!-- نتایج اینجا نمایش داده می‌شود -->
+                    <!-- تعداد پرنده -->
+                    <div class="form-group">
+                        <label>🐔 تعداد پرنده:</label>
+                        <input type="number" id="feedBirdCount" min="1" max="100000" value="5000" placeholder="مثال: 5000">
+                        <small style="color: #666;">تعداد پرندگان موجود در سالن</small>
+                    </div>
+
+                    <!-- وزن متوسط پرنده -->
+                    <div class="form-group">
+                        <label>⚖️ وزن متوسط هر پرنده (گرم):</label>
+                        <input type="number" id="feedBirdWeight" min="50" max="5000" value="1800" step="10" placeholder="مثال: 1800">
+                        <small style="color: #666;">میانگین وزن هر پرنده</small>
+                    </div>
+
+                    <!-- سن پرنده -->
+                    <div class="form-group">
+                        <label>📅 سن پرنده (روز):</label>
+                        <input type="number" id="feedBirdAge" min="1" max="60" value="32" placeholder="مثال: 32">
+                        <small style="color: #666;">سن پرنده بر حسب روز</small>
+                    </div>
+
+                    <!-- دکمه محاسبه -->
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="btn btn-success" onclick="window.calculateFeedConversion()" style="font-size: 1.2em; padding: 15px 40px;">
+                            📊 محاسبه سرانه مصرف دان
+                        </button>
+                    </div>
+                </div>
+
+                <!-- نتایج محاسبات -->
+                <div class="results-section" id="feedResult" style="display: none;">
+                    <h3>نتایج محاسبات</h3>
+                    <div class="results-grid" id="feedResultsGrid">
+                        <!-- نتایج با JavaScript پر می‌شود -->
+                    </div>
+                </div>
+
+                <!-- جدول استاندارد مصرف دان -->
+                <div class="data-table-section" style="margin-top: 30px;">
+                    <h3>📋 استاندارد مصرف دان بر اساس سن</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>سن (روز)</th>
+                                    <th>وزن هدف (گرم)</th>
+                                    <th>مصرف روزانه (گرم)</th>
+                                    <th>مصرف تجمعی (کیلوگرم)</th>
+                                    <th>FCR هدف</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>۷</td>
+                                    <td>۱۶۰</td>
+                                    <td>۲۵-۳۰</td>
+                                    <td>۰.۱۵</td>
+                                    <td>۰.۹</td>
+                                </tr>
+                                <tr>
+                                    <td>۱۴</td>
+                                    <td>۴۳۰</td>
+                                    <td>۵۵-۶۵</td>
+                                    <td>۰.۶</td>
+                                    <td>۱.۱</td>
+                                </tr>
+                                <tr>
+                                    <td>۲۱</td>
+                                    <td>۸۵۰</td>
+                                    <td>۹۰-۱۱۰</td>
+                                    <td>۱.۵</td>
+                                    <td>۱.۳</td>
+                                </tr>
+                                <tr>
+                                    <td>۲۸</td>
+                                    <td>۱۴۰۰</td>
+                                    <td>۱۳۰-۱۵۰</td>
+                                    <td>۲.۸</td>
+                                    <td>۱.۵</td>
+                                </tr>
+                                <tr>
+                                    <td>۳۵</td>
+                                    <td>۲۰۰۰</td>
+                                    <td>۱۶۰-۱۸۰</td>
+                                    <td>۴.۲</td>
+                                    <td>۱.۶</td>
+                                </tr>
+                                <tr>
+                                    <td>۴۲</td>
+                                    <td>۲۶۰۰</td>
+                                    <td>۱۷۰-۱۹۰</td>
+                                    <td>۵.۵</td>
+                                    <td>۱.۷</td>
+                                </tr>
+                                <tr>
+                                    <td>۴۹</td>
+                                    <td>۳۱۰۰</td>
+                                    <td>۱۷۰-۱۸۰</td>
+                                    <td>۶.۵</td>
+                                    <td>۱.۸</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- راهنمای مصرف دان -->
+                <div class="info-box">
+                    <h3>💡 راهنمای مصرف دان:</h3>
+                    <ul>
+                        <li><strong>کمتر از ۸۰ گرم:</strong> مصرف کم - بررسی کیفیت دان و سلامت پرنده</li>
+                        <li><strong>۸۰ - ۱۲۰ گرم:</strong> مصرف نرمال - وضعیت مناسب</li>
+                        <li><strong>۱۲۰ - ۱۵۰ گرم:</strong> مصرف بالا - دوره رشد سریع</li>
+                        <li><strong>بیشتر از ۱۵۰ گرم:</strong> مصرف بسیار بالا - بررسی دمای سالن</li>
+                    </ul>
+                    <p style="margin-top: 15px; color: #666; font-size: 0.95em;">
+                        * مصرف دان به نژاد، سن، دما و کیفیت دان بستگی دارد
+                    </p>
+                </div>
+
+                <!-- فرمول محاسبه -->
+                <div class="info-box" style="background: #fff3e0; border-right-color: #ff9800;">
+                    <h3>🧮 فرمول‌های محاسبه:</h3>
+                    <ul>
+                        <li><strong>سرانه مصرف دان:</strong> کل مصرف روزانه ÷ تعداد پرنده</li>
+                        <li><strong>درصد مصرف به وزن:</strong> (مصرف روزانه × ۱۰۰) ÷ وزن پرنده</li>
+                        <li><strong>پیش‌بینی وزن:</strong> سن × ۶۰ (فرمول تقریبی)</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -42,5 +331,204 @@
     </footer>
 
     <script src="../js/calculator.js"></script>
+    
+    <!-- اسکریپت مخصوص این صفحه -->
+    <script>
+        window.calculateFeedConversion = function() {
+            console.log("✅ دکمه محاسبه سرانه مصرف دان کلیک شد");
+            
+            try {
+                // دریافت مقادیر از فرم
+                const dailyFeed = parseFloat(document.getElementById('feedDailyFeed')?.value);
+                const birdCount = parseFloat(document.getElementById('feedBirdCount')?.value);
+                const birdWeight = parseFloat(document.getElementById('feedBirdWeight')?.value);
+                const birdAge = parseFloat(document.getElementById('feedBirdAge')?.value);
+
+                console.log("مقادیر دریافت شد:", {dailyFeed, birdCount, birdWeight, birdAge});
+
+                // اعتبارسنجی
+                if (!dailyFeed || !birdCount || !birdWeight || !birdAge) {
+                    alert("لطفاً همه فیلدها را پر کنید");
+                    return;
+                }
+
+                if (dailyFeed <= 0 || birdCount <= 0 || birdWeight <= 0 || birdAge <= 0) {
+                    alert("مقادیر باید بزرگتر از صفر باشند");
+                    return;
+                }
+
+                // محاسبه سرانه مصرف دان (گرم به ازای هر پرنده)
+                const feedPerBird = (dailyFeed * 1000) / birdCount; // تبدیل کیلوگرم به گرم
+                
+                // محاسبه درصد مصرف به وزن بدن
+                const feedToWeightPercent = (feedPerBird / birdWeight) * 100;
+                
+                // وزن پیش‌بینی شده بر اساس سن (فرمول تقریبی)
+                const expectedWeight = birdAge * 60; // هر روز حدود 60 گرم افزایش وزن
+                
+                // مقایسه با وزن فعلی
+                const weightDifference = birdWeight - expectedWeight;
+                const weightPercentOfExpected = (birdWeight / expectedWeight) * 100;
+                
+                // محاسبه کل مصرف روزانه (برای اطلاعات)
+                const totalDailyFeed = dailyFeed;
+                
+                // محاسبه مصرف تجمعی تقریبی تا این سن
+                const cumulativeFeed = (birdAge * feedPerBird) / 1000; // کیلوگرم
+                
+                // محاسبه FCR تقریبی
+                const estimatedFCR = cumulativeFeed / (birdWeight / 1000);
+
+                // تعیین وضعیت مصرف
+                let feedStatus = '';
+                let statusClass = '';
+                let statusMessage = '';
+                let statusColor = '';
+
+                if (feedPerBird < 80) {
+                    feedStatus = 'کمتر از حد نرمال';
+                    statusClass = 'status-low';
+                    statusColor = '#4caf50';
+                    statusMessage = 'مصرف کم - بررسی کیفیت دان و سلامت پرنده';
+                } else if (feedPerBird < 120) {
+                    feedStatus = 'نرمال';
+                    statusClass = 'status-normal';
+                    statusColor = '#ff9800';
+                    statusMessage = 'مصرف در محدوده نرمال';
+                } else if (feedPerBird < 150) {
+                    feedStatus = 'بالا';
+                    statusClass = 'status-high';
+                    statusColor = '#f44336';
+                    statusMessage = 'مصرف بالا - دوره رشد سریع';
+                } else {
+                    feedStatus = 'بسیار بالا';
+                    statusClass = 'status-high';
+                    statusColor = '#d32f2f';
+                    statusMessage = 'مصرف بسیار بالا - بررسی دمای سالن';
+                }
+
+                // تعیین وضعیت وزن
+                let weightStatus = '';
+                let weightStatusColor = '';
+                
+                if (weightPercentOfExpected < 90) {
+                    weightStatus = 'کمتر از استاندارد';
+                    weightStatusColor = '#f44336';
+                } else if (weightPercentOfExpected < 110) {
+                    weightStatus = 'مطابق استاندارد';
+                    weightStatusColor = '#4caf50';
+                } else {
+                    weightStatus = 'بیشتر از استاندارد';
+                    weightStatusColor = '#ff9800';
+                }
+
+                // نمایش نتایج
+                const resultDiv = document.getElementById('feedResult');
+                const resultsGrid = document.getElementById('feedResultsGrid');
+                
+                if (resultDiv && resultsGrid) {
+                    resultsGrid.innerHTML = `
+                        <!-- کارت سرانه مصرف دان -->
+                        <div class="result-item" style="border-top: 5px solid ${statusColor};">
+                            <h4>سرانه مصرف دان</h4>
+                            <div class="result-value">${feedPerBird.toFixed(1)}</div>
+                            <div class="result-unit">گرم به ازای هر پرنده</div>
+                            <div class="status-badge ${statusClass}" style="background: ${statusColor};">${feedStatus}</div>
+                        </div>
+                        
+                        <!-- کارت درصد مصرف به وزن -->
+                        <div class="result-item">
+                            <h4>درصد مصرف به وزن بدن</h4>
+                            <div class="result-value">${feedToWeightPercent.toFixed(1)}%</div>
+                            <div class="result-unit">درصد</div>
+                            <small>نرمال: 5-8%</small>
+                        </div>
+                        
+                        <!-- کارت وضعیت وزن -->
+                        <div class="result-item">
+                            <h4>وضعیت وزن</h4>
+                            <div class="result-value" style="color: ${weightStatusColor};">${birdWeight} گرم</div>
+                            <div class="result-unit">${weightStatus}</div>
+                            <small>وزن هدف در سن ${birdAge} روز: ${expectedWeight} گرم</small>
+                        </div>
+                        
+                        <!-- کارت مصرف تجمعی -->
+                        <div class="result-item">
+                            <h4>مصرف تجمعی تقریبی</h4>
+                            <div class="result-value">${cumulativeFeed.toFixed(2)}</div>
+                            <div class="result-unit">کیلوگرم</div>
+                            <small>از ابتدا تاکنون</small>
+                        </div>
+                        
+                        <!-- کارت FCR تخمینی -->
+                        <div class="result-item">
+                            <h4>FCR تخمینی</h4>
+                            <div class="result-value">${estimatedFCR.toFixed(2)}</div>
+                            <div class="result-unit">کیلوگرم</div>
+                            <small>ضریب تبدیل تقریبی</small>
+                        </div>
+                        
+                        <!-- کارت مقایسه با استاندارد -->
+                        <div class="result-item">
+                            <h4>مقایسه با استاندارد</h4>
+                            <div class="result-value">${weightPercentOfExpected.toFixed(1)}%</div>
+                            <div class="result-unit">درصد وزن استاندارد</div>
+                            <div class="progress-bar" style="height: 10px; background: #e0e0e0; border-radius: 5px; margin: 10px 0;">
+                                <div style="height: 100%; width: ${Math.min(100, weightPercentOfExpected)}%; background: ${weightStatusColor}; border-radius: 5px;"></div>
+                            </div>
+                            <small>${weightDifference > 0 ? '🔺' + weightDifference.toFixed(0) + ' گرم بیشتر' : '🔻' + Math.abs(weightDifference).toFixed(0) + ' گرم کمتر'}</small>
+                        </div>
+                    `;
+
+                    // اضافه کردن کارت پیام وضعیت
+                    const messageCard = document.createElement('div');
+                    messageCard.className = 'result-item';
+                    messageCard.style.background = '#f5f5f5';
+                    messageCard.style.gridColumn = 'span 2';
+                    messageCard.innerHTML = `
+                        <h4 style="color: ${statusColor};">${feedStatus}</h4>
+                        <p style="font-size: 1.1em; margin: 10px 0;">${statusMessage}</p>
+                        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+                            <div>
+                                <small>مصرف فعلی</small>
+                                <div style="font-weight: bold;">${feedPerBird.toFixed(1)} گرم</div>
+                            </div>
+                            <div>
+                                <small>مصرف نرمال</small>
+                                <div style="font-weight: bold;">80-120 گرم</div>
+                            </div>
+                        </div>
+                    `;
+                    resultsGrid.appendChild(messageCard);
+                    
+                    resultDiv.style.display = 'block';
+                    
+                    // اسکرول به نتایج
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+            } catch (error) {
+                console.error("خطا در محاسبه سرانه مصرف:", error);
+                alert("خطا در محاسبات. لطفاً دوباره تلاش کنید.");
+            }
+        };
+
+        // محاسبه خودکار با Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['feedDailyFeed', 'feedBirdCount', 'feedBirdWeight', 'feedBirdAge'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            window.calculateFeedConversion();
+                        }
+                    });
+                }
+            });
+            
+            console.log("✅ صفحه سرانه مصرف دان لود شد");
+        });
+    </script>
 </body>
 </html>
