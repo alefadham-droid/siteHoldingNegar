@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* استایل‌های قبلی */
         .report-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -288,7 +289,6 @@
             margin-left: 8px;
         }
         
-        /* استایل مخصوص بخش وزن‌گیری هفتگی */
         .weight-schedule {
             background: #e8f4fd;
             border: 2px dashed #2196f3;
@@ -303,10 +303,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        
-        .weight-schedule h3 i {
-            font-size: 1.3em;
         }
         
         .weight-days {
@@ -523,8 +519,8 @@
                 <div class="basic-info-grid">
                     <div class="basic-info-item">
                         <label>📅 تاریخ ورود جوجه (شمسی):</label>
-                        <input type="text" id="entryDate" placeholder="مثال: ۱۴۰۲/۱۲/۰۱" value="۱۴۰۲/۱۲/۰۱" onchange="updateFlockInfo()">
-                        <small style="color: #666;">تاریخ را به صورت شمسی وارد کنید</small>
+                        <input type="text" id="entryDate" placeholder="مثال: 1402/12/01" value="1402/12/01" onchange="updateFlockInfo()">
+                        <small style="color: #666;">تاریخ را به صورت شمسی وارد کنید (مثال: 1402/12/01)</small>
                     </div>
                     <div class="basic-info-item">
                         <label>🐔 تعداد جوجه ریزی (روز اول):</label>
@@ -541,7 +537,7 @@
                 </div>
             </div>
 
-            <!-- بخش جدید: برنامه وزن‌گیری هفتگی -->
+            <!-- بخش برنامه وزن‌گیری هفتگی -->
             <div class="weight-schedule no-print">
                 <h3>
                     <i>⚖️</i>
@@ -651,60 +647,163 @@
 
     <!-- اضافه کردن کتابخانه Chart.js برای نمودار -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- کتابخانه تبدیل تاریخ شمسی -->
-    <script src="https://cdn.jsdelivr.net/gh/jalaali/jalaali-js/dist/jalaali.min.js"></script>
     
     <script>
+        // ================ توابع تبدیل تاریخ شمسی (دستی) ================
+        
+        // تابع تبدیل تاریخ میلادی به شمسی
+        function gregorianToJalali(gy, gm, gd) {
+            let g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+            
+            // بررسی کبیسه بودن سال میلادی
+            let gy2 = (gm > 2) ? (gy + 1) : gy;
+            let days = 365 * (gy + 1) + Math.floor((gy2 - 1) / 4) - Math.floor((gy2 - 1) / 100) + Math.floor((gy2 - 1) / 400);
+            
+            for (let i = 0; i < gm - 1; i++) {
+                if (i === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0)) {
+                    days += 29;
+                } else {
+                    days += g_days_in_month[i];
+                }
+            }
+            days += gd;
+            
+            let jy = 979;
+            let jm = 1;
+            let jd = 1;
+            
+            days -= 226896;
+            
+            let jy4 = 4 * jy + 3;
+            let jm1 = 4 * jm + 5;
+            
+            while (days >= (365 * 4 + 1) * 4) {
+                days -= (365 * 4 + 1) * 4;
+                jy += 4;
+            }
+            
+            while (days >= 365) {
+                if ((jy % 4 === 2 && jy % 128 !== 0) || (jy % 1320 === 3)) {
+                    days -= 366;
+                } else {
+                    days -= 365;
+                }
+                jy++;
+            }
+            
+            while (days >= j_days_in_month[jm - 1]) {
+                days -= j_days_in_month[jm - 1];
+                jm++;
+            }
+            
+            jd = days + 1;
+            
+            return { jy, jm, jd };
+        }
+
+        // تابع تبدیل تاریخ شمسی به میلادی
+        function jalaliToGregorian(jy, jm, jd) {
+            let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+            
+            let days = 0;
+            for (let i = 0; i < jm - 1; i++) {
+                days += j_days_in_month[i];
+            }
+            days += jd;
+            
+            let gy = jy - 979;
+            let gm = 1;
+            let gd = 1;
+            
+            let marchDays = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            
+            days += 79;
+            
+            if (days > 366 && (gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2)) {
+                days--;
+            }
+            
+            while (days > 365) {
+                if ((gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2)) {
+                    days -= 366;
+                } else {
+                    days -= 365;
+                }
+                gy++;
+            }
+            
+            if (days === 0) {
+                gy--;
+                days = (gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2) ? 366 : 365;
+            }
+            
+            for (let i = 0; i < 12; i++) {
+                let monthDays = i === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0) ? 29 : 
+                                [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][i];
+                
+                if (days <= monthDays) {
+                    gm = i + 1;
+                    gd = days;
+                    break;
+                }
+                days -= monthDays;
+            }
+            
+            return { gy, gm, gd };
+        }
+
+        // تبدیل تاریخ میلادی به رشته شمسی
+        function toJalaliString(date) {
+            if (!date) return '';
+            
+            if (typeof date === 'string' && date.includes('-')) {
+                const [gy, gm, gd] = date.split('-').map(Number);
+                const j = gregorianToJalali(gy, gm, gd);
+                return `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
+            }
+            
+            if (typeof date === 'string' && date.includes('/')) {
+                return date; // قبلاً شمسی است
+            }
+            
+            return date;
+        }
+
+        // تبدیل تاریخ شمسی به میلادی
+        function jalaliToGregorianString(jalaliDate) {
+            if (!jalaliDate) {
+                const today = new Date();
+                return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+            }
+            
+            if (jalaliDate.includes('/')) {
+                const [jy, jm, jd] = jalaliDate.split('/').map(Number);
+                const g = jalaliToGregorian(jy, jm, jd);
+                return `${g.gy}-${g.gm.toString().padStart(2, '0')}-${g.gd.toString().padStart(2, '0')}`;
+            }
+            
+            return jalaliDate;
+        }
+
+        // دریافت تاریخ شمسی امروز
+        function getTodayJalali() {
+            const today = new Date();
+            const j = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+            return `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
+        }
+
         // ================ متغیرهای سراسری ================
         let dailyData = [];
         let growthChart = null;
         
         // اطلاعات اولیه
         let flockInfo = {
-            entryDate: '۱۴۰۲/۱۲/۰۱',  // تاریخ شمسی
+            entryDate: '1402/12/01',  // تاریخ شمسی
             initialBirds: 10000,
             flockName: 'سالن ۱',
             breed: 'راس ۳۰۸'
         };
-
-        // ================ توابع تبدیل تاریخ شمسی ================
-        
-        function toJalali(date) {
-            if (!date) return '';
-            
-            // اگر تاریخ میلادی است تبدیل کن
-            if (date.includes('-')) {
-                const [year, month, day] = date.split('-').map(Number);
-                const jDate = jalaali.toJalaali(year, month, day);
-                return `${jDate.jy}/${jDate.jm.toString().padStart(2, '0')}/${jDate.jd.toString().padStart(2, '0')}`;
-            }
-            
-            // اگر تاریخ شمسی است، همان را برگردان
-            return date;
-        }
-
-        function toGregorian(jalaliDate) {
-            if (!jalaliDate) {
-                const today = new Date();
-                return today.toISOString().split('T')[0];
-            }
-            
-            // اگر تاریخ به فرمت شمسی است
-            if (jalaliDate.includes('/')) {
-                const [jy, jm, jd] = jalaliDate.split('/').map(Number);
-                const gDate = jalaali.toGregorian(jy, jm, jd);
-                return `${gDate.gy}-${gDate.gm.toString().padStart(2, '0')}-${gDate.gd.toString().padStart(2, '0')}`;
-            }
-            
-            // اگر تاریخ میلادی است، همان را برگردان
-            return jalaliDate;
-        }
-
-        function getCurrentJalaliDate() {
-            const today = new Date();
-            const jDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate());
-            return `${jDate.jy}/${jDate.jm.toString().padStart(2, '0')}/${jDate.jd.toString().padStart(2, '0')}`;
-        }
 
         // محاسبه سن بر اساس تاریخ شمسی
         function calculateAge() {
@@ -712,9 +811,9 @@
             
             try {
                 // تبدیل تاریخ شمسی به میلادی
-                const [jy, jm, jd] = flockInfo.entryDate.split('/').map(Number);
-                const gDate = jalaali.toGregorian(jy, jm, jd);
-                const entryDate = new Date(gDate.gy, gDate.gm - 1, gDate.gd);
+                const gDate = jalaliToGregorianString(flockInfo.entryDate);
+                const [gy, gm, gd] = gDate.split('-').map(Number);
+                const entryDate = new Date(gy, gm - 1, gd);
                 
                 const today = new Date();
                 const diffTime = Math.abs(today - entryDate);
@@ -729,13 +828,7 @@
         // ================ توابع مدیریت وزن‌گیری هفتگی ================
         
         function getWeightDays() {
-            const weightDays = [];
-            // روزهای 1, 7, 14, 21, 28, 35, 42, 49
-            for (let i = 1; i <= 49; i += 7) {
-                if (i === 1) continue; // روز اول اختیاری است
-                weightDays.push(i);
-            }
-            return weightDays;
+            return [7, 14, 21, 28, 35, 42, 49];
         }
 
         function renderWeightSchedule() {
@@ -745,26 +838,24 @@
             container.innerHTML = '';
             
             const weightDays = getWeightDays();
-            const today = new Date();
-            const currentJalali = getCurrentJalaliDate();
             
             weightDays.forEach(day => {
                 // محاسبه تاریخ تقریبی برای این روز
                 let dayDate = '';
                 if (flockInfo.entryDate) {
                     try {
-                        const [jy, jm, jd] = flockInfo.entryDate.split('/').map(Number);
-                        const gDate = jalaali.toGregorian(jy, jm, jd);
-                        const entryDate = new Date(gDate.gy, gDate.gm - 1, gDate.gd);
+                        const gDate = jalaliToGregorianString(flockInfo.entryDate);
+                        const [gy, gm, gd] = gDate.split('-').map(Number);
+                        const entryDate = new Date(gy, gm - 1, gd);
                         const targetDate = new Date(entryDate);
                         targetDate.setDate(entryDate.getDate() + (day - 1));
                         
-                        const jTarget = jalaali.toJalaali(
+                        const j = gregorianToJalali(
                             targetDate.getFullYear(),
                             targetDate.getMonth() + 1,
                             targetDate.getDate()
                         );
-                        dayDate = `${jTarget.jy}/${jTarget.jm.toString().padStart(2, '0')}/${jTarget.jd.toString().padStart(2, '0')}`;
+                        dayDate = `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
                     } catch (e) {
                         dayDate = 'تاریخ نامشخص';
                     }
@@ -795,13 +886,11 @@
             const dayInfo = document.getElementById('popupDayInfo');
             const weightInput = document.getElementById('popupWeight');
             
-            // پیدا کردن وزن قبلی اگر وجود داشته باشد
             const existingRecord = dailyData.find(d => d.day === day);
             
             dayInfo.innerHTML = `روز ${day} - ${date}`;
             weightInput.value = existingRecord ? existingRecord.weight : '';
             
-            // ذخیره روز در attribute برای استفاده در save
             popup.setAttribute('data-day', day);
             
             popup.classList.add('active');
@@ -822,26 +911,24 @@
                 return;
             }
             
-            // پیدا کردن یا ایجاد رکورد برای این روز
             let record = dailyData.find(d => d.day === day);
             
             if (record) {
-                // به‌روزرسانی وزن
                 record.weight = weight;
             } else {
-                // ایجاد رکورد جدید
-                const [jy, jm, jd] = flockInfo.entryDate.split('/').map(Number);
-                const gDate = jalaali.toGregorian(jy, jm, jd);
-                const entryDate = new Date(gDate.gy, gDate.gm - 1, gDate.gd);
+                // محاسبه تاریخ شمسی
+                const gDate = jalaliToGregorianString(flockInfo.entryDate);
+                const [gy, gm, gd] = gDate.split('-').map(Number);
+                const entryDate = new Date(gy, gm - 1, gd);
                 const targetDate = new Date(entryDate);
                 targetDate.setDate(entryDate.getDate() + (day - 1));
                 
-                const jTarget = jalaali.toJalaali(
+                const j = gregorianToJalali(
                     targetDate.getFullYear(),
                     targetDate.getMonth() + 1,
                     targetDate.getDate()
                 );
-                const jalaliDate = `${jTarget.jy}/${jTarget.jm.toString().padStart(2, '0')}/${jTarget.jd.toString().padStart(2, '0')}`;
+                const jalaliDate = `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
                 
                 dailyData.push({
                     day: day,
@@ -853,7 +940,6 @@
                 });
             }
             
-            // مرتب‌سازی و رندر مجدد
             dailyData.sort((a, b) => a.day - b.day);
             renderDailyTable();
             renderWeightSchedule();
@@ -864,7 +950,7 @@
         // ================ توابع مدیریت اطلاعات گله ================
         
         function updateFlockInfo() {
-            flockInfo.entryDate = document.getElementById('entryDate')?.value || '۱۴۰۲/۱۲/۰۱';
+            flockInfo.entryDate = document.getElementById('entryDate')?.value || '1402/12/01';
             flockInfo.initialBirds = parseFloat(document.getElementById('initialBirds')?.value) || 10000;
             flockInfo.flockName = document.getElementById('flockName')?.value || 'سالن ۱';
             flockInfo.breed = document.getElementById('breed')?.value || 'راس ۳۰۸';
@@ -896,15 +982,14 @@
         // ================ توابع مدیریت داده‌های روزانه ================
         
         function loadSampleData() {
-            // داده‌های نمونه با تاریخ شمسی
             dailyData = [
-                { day: 1, date: '۱۴۰۲/۱۲/۰۱', mortality: 15, feed: 120, weight: 180, notes: 'شروع خوب' },
-                { day: 7, date: '۱۴۰۲/۱۲/۰۷', mortality: 8, feed: 280, weight: 420, notes: 'وزن‌گیری هفتگی' },
-                { day: 14, date: '۱۴۰۲/۱۲/۱۴', mortality: 5, feed: 550, weight: 890, notes: 'وزن‌گیری هفتگی' },
-                { day: 21, date: '۱۴۰۲/۱۲/۲۱', mortality: 4, feed: 820, weight: 1450, notes: 'وزن‌گیری هفتگی' },
-                { day: 28, date: '۱۴۰۲/۱۲/۲۸', mortality: 3, feed: 1100, weight: 2100, notes: 'وزن‌گیری هفتگی' },
-                { day: 35, date: '۱۴۰۳/۰۱/۰۵', mortality: 2, feed: 1350, weight: 2750, notes: 'وزن‌گیری هفتگی' },
-                { day: 42, date: '۱۴۰۳/۰۱/۱۲', mortality: 2, feed: 1500, weight: 3200, notes: 'آماده فروش' }
+                { day: 1, date: '1402/12/01', mortality: 15, feed: 120, weight: 180, notes: 'شروع خوب' },
+                { day: 7, date: '1402/12/07', mortality: 8, feed: 280, weight: 420, notes: 'وزن‌گیری هفتگی' },
+                { day: 14, date: '1402/12/14', mortality: 5, feed: 550, weight: 890, notes: 'وزن‌گیری هفتگی' },
+                { day: 21, date: '1402/12/21', mortality: 4, feed: 820, weight: 1450, notes: 'وزن‌گیری هفتگی' },
+                { day: 28, date: '1402/12/28', mortality: 3, feed: 1100, weight: 2100, notes: 'وزن‌گیری هفتگی' },
+                { day: 35, date: '1403/01/05', mortality: 2, feed: 1350, weight: 2750, notes: 'وزن‌گیری هفتگی' },
+                { day: 42, date: '1403/01/12', mortality: 2, feed: 1500, weight: 3200, notes: 'آماده فروش' }
             ];
             renderDailyTable();
             renderWeightSchedule();
@@ -916,7 +1001,6 @@
             
             tbody.innerHTML = '';
             
-            // مرتب‌سازی بر اساس روز
             dailyData.sort((a, b) => a.day - b.day);
             
             let prevWeight = 0;
@@ -931,7 +1015,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.day}</td>
-                    <td><input type="text" value="${row.date}" onchange="updateRow(${index}, 'date', this.value)" placeholder="۱۴۰۲/۱۲/۰۱"></td>
+                    <td><input type="text" value="${row.date}" onchange="updateRow(${index}, 'date', this.value)" placeholder="1402/12/01"></td>
                     <td class="bird-count-cell">${birdCount.toLocaleString()}</td>
                     <td><input type="number" value="${row.mortality}" min="0" onchange="updateRow(${index}, 'mortality', this.value)"></td>
                     <td><input type="number" value="${row.feed}" step="0.1" min="0" onchange="updateRow(${index}, 'feed', this.value)"></td>
@@ -978,20 +1062,20 @@
             // محاسبه تاریخ شمسی
             let jalaliDate = '';
             try {
-                const [jy, jm, jd] = flockInfo.entryDate.split('/').map(Number);
-                const gDate = jalaali.toGregorian(jy, jm, jd);
-                const entryDate = new Date(gDate.gy, gDate.gm - 1, gDate.gd);
+                const gDate = jalaliToGregorianString(flockInfo.entryDate);
+                const [gy, gm, gd] = gDate.split('-').map(Number);
+                const entryDate = new Date(gy, gm - 1, gd);
                 const targetDate = new Date(entryDate);
                 targetDate.setDate(entryDate.getDate() + (newDay - 1));
                 
-                const jTarget = jalaali.toJalaali(
+                const j = gregorianToJalali(
                     targetDate.getFullYear(),
                     targetDate.getMonth() + 1,
                     targetDate.getDate()
                 );
-                jalaliDate = `${jTarget.jy}/${jTarget.jm.toString().padStart(2, '0')}/${jTarget.jd.toString().padStart(2, '0')}`;
+                jalaliDate = `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
             } catch (e) {
-                jalaliDate = getCurrentJalaliDate();
+                jalaliDate = getTodayJalali();
             }
             
             dailyData.push({
@@ -999,7 +1083,7 @@
                 date: jalaliDate,
                 mortality: newMortality,
                 feed: newFeed,
-                weight: 0,  // وزن فقط از طریق پاپ‌آپ ثبت می‌شود
+                weight: 0,
                 notes: newNotes
             });
             
@@ -1283,7 +1367,7 @@
                     flockInfo = data.flockInfo || flockInfo;
                     dailyData = data.dailyData || [];
                     
-                    document.getElementById('entryDate').value = flockInfo.entryDate || '۱۴۰۲/۱۲/۰۱';
+                    document.getElementById('entryDate').value = flockInfo.entryDate || '1402/12/01';
                     document.getElementById('initialBirds').value = flockInfo.initialBirds || 10000;
                     document.getElementById('flockName').value = flockInfo.flockName || 'سالن ۱';
                     document.getElementById('breed').value = flockInfo.breed || 'راس ۳۰۸';
@@ -1299,7 +1383,7 @@
         function resetData() {
             if (confirm('آیا از ریست کردن اطلاعات اطمینان دارید؟')) {
                 flockInfo = {
-                    entryDate: document.getElementById('entryDate')?.value || '۱۴۰۲/۱۲/۰۱',
+                    entryDate: document.getElementById('entryDate')?.value || '1402/12/01',
                     initialBirds: 10000,
                     flockName: 'سالن ۱',
                     breed: 'راس ۳۰۸'
@@ -1346,7 +1430,7 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', `poultry_report_${getCurrentJalaliDate().replace(/\//g, '-')}.csv`);
+            link.setAttribute('download', `poultry_report_${getTodayJalali().replace(/\//g, '-')}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -1358,7 +1442,7 @@
             console.log("✅ صفحه گزارش روزانه لود شد");
             
             if (!document.getElementById('entryDate').value) {
-                document.getElementById('entryDate').value = '۱۴۰۲/۱۲/۰۱';
+                document.getElementById('entryDate').value = '1402/12/01';
             }
             
             loadFromLocalStorage();
