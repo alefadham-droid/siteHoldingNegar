@@ -6,10 +6,30 @@
     <title>ماشین حساب مرغداری</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .date-header {
+            background: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .date-header i {
+            color: #667eea;
+            margin-left: 8px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <div class="date-header">
+                <i>📅</i> امروز: <span id="jalaliDate">۱۴۰۲/۱۲/۰۱</span>
+            </div>
             <h1>🧮 ماشین حساب تخصصی مرغداری</h1>
             <p>محاسبه دقیق پارامترهای پرورش طیور</p>
         </header>
@@ -39,12 +59,20 @@
                 <a href="pages/feed-conversion.html" class="btn">محاسبه</a>
             </div>
 
-            <!-- کارت ماشین حساب تنظیم دور فن (جدید) -->
+            <!-- کارت ماشین حساب تنظیم دور فن -->
             <div class="card">
                 <div class="card-icon">🌀</div>
                 <h2>تنظیم دور فن (تهویه)</h2>
-                <p>محاسبه تهویه مورد نیاز و تنظیم دور فن بر اساس سن و وزن پرنده</p>
+                <p>محاسبه تهویه مورد نیاز و تنظیم دور فن</p>
                 <a href="pages/fan-calculator.html" class="btn">محاسبه تهویه</a>
+            </div>
+
+            <!-- کارت گزارش روزانه -->
+            <div class="card">
+                <div class="card-icon">📋</div>
+                <h2>گزارش روزانه</h2>
+                <p>ثبت وقایع روزانه، محاسبات خودکار و نمودار رشد</p>
+                <a href="pages/daily-report.html" class="btn">مشاهده گزارش</a>
             </div>
         </div>
 
@@ -56,6 +84,7 @@
                     <thead>
                         <tr>
                             <th>روز پرورش</th>
+                            <th>تاریخ (شمسی)</th>
                             <th>تعداد پرنده</th>
                             <th>وزن (گرم)</th>
                             <th>دان مصرفی (کیلوگرم)</th>
@@ -90,5 +119,65 @@
     </footer>
 
     <script src="js/calculator.js"></script>
+    <script>
+        // تابع دریافت تاریخ شمسی امروز
+        function getTodayJalali() {
+            const today = new Date();
+            const j = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+            return `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
+        }
+
+        // توابع تبدیل تاریخ
+        function gregorianToJalali(gy, gm, gd) {
+            let g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+            
+            let gy2 = (gm > 2) ? (gy + 1) : gy;
+            let days = 365 * (gy + 1) + Math.floor((gy2 - 1) / 4) - Math.floor((gy2 - 1) / 100) + Math.floor((gy2 - 1) / 400);
+            
+            for (let i = 0; i < gm - 1; i++) {
+                if (i === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0)) {
+                    days += 29;
+                } else {
+                    days += g_days_in_month[i];
+                }
+            }
+            days += gd;
+            
+            let jy = 979;
+            let jm = 1;
+            let jd = 1;
+            
+            days -= 226896;
+            
+            while (days >= (365 * 4 + 1) * 4) {
+                days -= (365 * 4 + 1) * 4;
+                jy += 4;
+            }
+            
+            while (days >= 365) {
+                if ((jy % 4 === 2 && jy % 128 !== 0) || (jy % 1320 === 3)) {
+                    days -= 366;
+                } else {
+                    days -= 365;
+                }
+                jy++;
+            }
+            
+            while (days >= j_days_in_month[jm - 1]) {
+                days -= j_days_in_month[jm - 1];
+                jm++;
+            }
+            
+            jd = days + 1;
+            
+            return { jy, jm, jd };
+        }
+
+        // نمایش تاریخ شمسی در صفحه اصلی
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('jalaliDate').textContent = getTodayJalali();
+        });
+    </script>
 </body>
 </html>
