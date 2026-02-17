@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش روزانه مرغداری</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .info-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .info-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .info-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .basic-info {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .basic-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .basic-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .basic-info-item label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .basic-info-item input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        .basic-info-item input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .daily-log {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .daily-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .daily-log-header h2 {
+            color: #333;
+            margin: 0;
+        }
+        
+        .add-row-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .add-row-form input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        .add-row-form button {
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background 0.3s;
+        }
+        
+        .add-row-form button:hover {
+            background: #45a049;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            font-weight: 500;
+        }
+        
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        td input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background: #ff3344;
+        }
+        
+        .summary-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .summary-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .summary-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            height: 400px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Vazirmatn', sans-serif;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        .btn-save {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-print {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .btn-reset {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-export {
+            background: #9c27b0;
+            color: white;
+        }
+        
+        .growth-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .growth-up {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .growth-down {
+            background: #f44336;
+            color: white;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="no-print">
+            <h1>📋 گزارش‌گیری روزانه مرغداری</h1>
+            <p>ثبت و پایش روزانه عملکرد گله</p>
+            <a href="../index.html" class="btn" style="margin-top: 20px;">🏠 بازگشت به صفحه اصلی</a>
+        </header>
+
+        <div class="report-container">
+            <!-- کارت‌های اطلاعات کلی -->
+            <div class="info-cards" id="summaryCards">
+                <div class="info-card">
+                    <h3>📅 سن گله</h3>
+                    <div class="value" id="currentAge">0</div>
+                    <div class="unit">روز</div>
+                </div>
+                <div class="info-card">
+                    <h3>🐔 تعداد فعلی</h3>
+                    <div class="value" id="currentBirds">0</div>
+                    <div class="unit">قطعه</div>
+                </div>
+                <div class="info-card">
+                    <h3>⚖️ میانگین وزن</h3>
+                    <div class="value" id="avgWeight">0</div>
+                    <div class="unit">گرم</div>
+                </div>
+                <div class="info-card">
+                    <h3>🥣 مصرف کل دان</h3>
+                    <div class="value" id="totalFeed">0</div>
+                    <div class="unit">کیلوگرم</div>
+                </div>
+            </div>
+
+            <!-- اطلاعات اولیه گله -->
+            <div class="basic-info no-print">
+                <h2>📝 اطلاعات اولیه گله</h2>
+                <div class="basic-info-grid">
+                    <div class="basic-info-item">
+                        <label>📅 تاریخ ورود جوجه:</label>
+                        <input type="date" id="entryDate" onchange="updateFlockInfo()">
+                    </div>
+                    <div class="basic-info-item">
+                        <label>🐔 تعداد جوجه ریزی:</label>
+                        <input type="number" id="initialBirds" value="10000" min="1" onchange="updateFlockInfo()">
+                    </div>
+                    <div class="basic-info-item">
+                        <label>🏷️ نام گله/سالن:</label>
+                        <input type="text" id="flockName" value="سالن ۱" placeholder="نام سالن">
+                    </div>
+                    <div class="basic-info-item">
+                        <label>📊 نژاد:</label>
+                        <input type="text" id="breed" value="راس ۳۰۸" placeholder="نژاد">
+                    </div>
+                </div>
+            </div>
+
+            <!-- فرم ثبت روزانه -->
+            <div class="daily-log no-print">
+                <div class="daily-log-header">
+                    <h2>📋 ثبت وقایع روزانه</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn btn-save" onclick="saveToLocalStorage()">💾 ذخیره اطلاعات</button>
+                        <button class="action-btn btn-print" onclick="window.print()">🖨️ پرینت گزارش</button>
+                        <button class="action-btn btn-export" onclick="exportToExcel()">📊 خروجی اکسل</button>
+                        <button class="action-btn btn-reset" onclick="resetData()">🔄 ریست اطلاعات</button>
+                    </div>
+                </div>
+
+                <!-- فرم افزودن ردیف جدید -->
+                <div class="add-row-form">
+                    <input type="number" id="newDay" placeholder="روز" value="1">
+                    <input type="number" id="newMortality" placeholder="تلفات" value="0">
+                    <input type="number" id="newFeed" placeholder="دان مصرفی (کیلوگرم)" value="0">
+                    <input type="number" id="newWeight" placeholder="وزن نمونه (گرم)" value="0">
+                    <input type="text" id="newNotes" placeholder="توضیحات">
+                    <button onclick="addDailyRow()">➕ افزودن</button>
+                </div>
+
+                <!-- جدول ثبت روزانه -->
+                <div class="table-container">
+                    <table id="dailyTable">
+                        <thead>
+                            <tr>
+                                <th>روز</th>
+                                <th>تاریخ</th>
+                                <th>تلفات</th>
+                                <th>دان مصرفی (کیلوگرم)</th>
+                                <th>وزن نمونه (گرم)</th>
+                                <th>سرانه مصرف (گرم)</th>
+                                <th>افزایش وزن (گرم)</th>
+                                <th>FCR روزانه</th>
+                                <th>توضیحات</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyTableBody">
+                            <!-- ردیف‌ها با JavaScript پر می‌شوند -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- خلاصه محاسبات -->
+            <div class="summary-section">
+                <h2>📊 خلاصه عملکرد گله</h2>
+                <div class="summary-grid" id="summaryGrid">
+                    <!-- با JavaScript پر می‌شود -->
+                </div>
+            </div>
+
+            <!-- نمودار رشد -->
+            <div class="chart-container no-print">
+                <canvas id="growthChart"></canvas>
+            </div>
+
+            <!-- توصیه‌های مدیریتی -->
+            <div class="info-box no-print">
+                <h3>💡 توصیه‌های مدیریتی بر اساس عملکرد:</h3>
+                <ul id="recommendations">
+                    <li>داده‌ها را وارد کنید تا توصیه‌ها نمایش داده شود</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="no-print">
+        <p>تمامی حقوق محفوظ است © ۱۴۰۴</p>
+    </footer>
+
+    <!-- اضافه کردن کتابخانه Chart.js برای نمودار -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // ================ متغیرهای سراسری ================
+        let dailyData = [];
+        let growthChart = null;
+        
+        // اطلاعات اولیه
+        let flockInfo = {
+            entryDate: '',
+            initialBirds: 10000,
+            flockName: 'سالن ۱',
+            breed: 'راس ۳۰۸'
+        };
+
+        // ================ توابع کمکی ================
+        
+        // تبدیل تاریخ شمسی به میلادی (برای ذخیره‌سازی)
+        function toGregorianDate(persianDate) {
+            if (!persianDate) return new Date().toISOString().split('T')[0];
+            return persianDate;
+        }
+
+        // محاسبه سن بر اساس تاریخ ورود
+        function calculateAge() {
+            if (!flockInfo.entryDate) return 0;
+            
+            const entryDate = new Date(flockInfo.entryDate);
+            const today = new Date();
+            const diffTime = Math.abs(today - entryDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // ================ توابع مدیریت اطلاعات گله ================
+        
+        function updateFlockInfo() {
+            flockInfo.entryDate = document.getElementById('entryDate')?.value || '';
+            flockInfo.initialBirds = parseFloat(document.getElementById('initialBirds')?.value) || 10000;
+            flockInfo.flockName = document.getElementById('flockName')?.value || 'سالن ۱';
+            flockInfo.breed = document.getElementById('breed')?.value || 'راس ۳۰۸';
+            
+            updateAllCalculations();
+            saveToLocalStorage();
+        }
+
+        // ================ توابع مدیریت داده‌های روزانه ================
+        
+        function loadSampleData() {
+            // داده‌های نمونه برای نمایش
+            dailyData = [
+                { day: 1, date: '2024-01-01', mortality: 15, feed: 120, weight: 180, notes: 'شروع خوب' },
+                { day: 7, date: '2024-01-07', mortality: 8, feed: 280, weight: 420, notes: '' },
+                { day: 14, date: '2024-01-14', mortality: 5, feed: 550, weight: 890, notes: '' },
+                { day: 21, date: '2024-01-21', mortality: 4, feed: 820, weight: 1450, notes: '' },
+                { day: 28, date: '2024-01-28', mortality: 3, feed: 1100, weight: 2100, notes: '' },
+                { day: 35, date: '2024-02-04', mortality: 2, feed: 1350, weight: 2750, notes: '' },
+                { day: 42, date: '2024-02-11', mortality: 2, feed: 1500, weight: 3200, notes: 'آماده فروش' }
+            ];
+            renderDailyTable();
+        }
+
+        function renderDailyTable() {
+            const tbody = document.getElementById('dailyTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            // مرتب‌سازی بر اساس روز
+            dailyData.sort((a, b) => a.day - b.day);
+            
+            let totalBirds = flockInfo.initialBirds;
+            let totalFeed = 0;
+            let prevWeight = 0;
+            
+            dailyData.forEach((row, index) => {
+                // محاسبه تلفات تجمعی
+                totalBirds -= row.mortality;
+                
+                // محاسبه سرانه مصرف
+                const feedPerBird = totalBirds > 0 ? (row.feed * 1000) / totalBirds : 0;
+                
+                // محاسبه افزایش وزن
+                const weightGain = row.weight - prevWeight;
+                prevWeight = row.weight;
+                
+                // محاسبه FCR روزانه
+                const dailyFCR = weightGain > 0 ? (feedPerBird / weightGain) : 0;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.day}</td>
+                    <td><input type="date" value="${row.date}" onchange="updateRow(${index}, 'date', this.value)"></td>
+                    <td><input type="number" value="${row.mortality}" onchange="updateRow(${index}, 'mortality', this.value)"></td>
+                    <td><input type="number" value="${row.feed}" step="0.1" onchange="updateRow(${index}, 'feed', this.value)"></td>
+                    <td><input type="number" value="${row.weight}" onchange="updateRow(${index}, 'weight', this.value)"></td>
+                    <td>${feedPerBird.toFixed(1)}</td>
+                    <td>${weightGain > 0 ? '+' + weightGain : weightGain}</td>
+                    <td>${dailyFCR.toFixed(2)}</td>
+                    <td><input type="text" value="${row.notes || ''}" onchange="updateRow(${index}, 'notes', this.value)"></td>
+                    <td><button class="delete-btn" onclick="deleteRow(${index})">🗑️</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            updateAllCalculations();
+        }
+
+        function addDailyRow() {
+            const newDay = parseInt(document.getElementById('newDay')?.value) || 1;
+            const newMortality = parseInt(document.getElementById('newMortality')?.value) || 0;
+            const newFeed = parseFloat(document.getElementById('newFeed')?.value) || 0;
+            const newWeight = parseFloat(document.getElementById('newWeight')?.value) || 0;
+            const newNotes = document.getElementById('newNotes')?.value || '';
+            
+            // بررسی تکراری نبودن روز
+            if (dailyData.some(row => row.day === newDay)) {
+                alert('این روز قبلاً ثبت شده است');
+                return;
+            }
+            
+            dailyData.push({
+                day: newDay,
+                date: new Date().toISOString().split('T')[0],
+                mortality: newMortality,
+                feed: newFeed,
+                weight: newWeight,
+                notes: newNotes
+            });
+            
+            renderDailyTable();
+            clearAddForm();
+        }
+
+        function updateRow(index, field, value) {
+            if (field === 'mortality' || field === 'feed' || field === 'weight') {
+                dailyData[index][field] = parseFloat(value) || 0;
+            } else {
+                dailyData[index][field] = value;
+            }
+            renderDailyTable();
+        }
+
+        function deleteRow(index) {
+            dailyData.splice(index, 1);
+            renderDailyTable();
+        }
+
+        function clearAddForm() {
+            document.getElementById('newDay').value = dailyData.length + 1;
+            document.getElementById('newMortality').value = 0;
+            document.getElementById('newFeed').value = 0;
+            document.getElementById('newWeight').value = 0;
+            document.getElementById('newNotes').value = '';
+        }
+
+        // ================ توابع محاسباتی ================
+        
+        function calculateFlockPerformance() {
+            if (dailyData.length === 0) return null;
+            
+            let totalMortality = 0;
+            let totalFeed = 0;
+            let latestWeight = 0;
+            let totalBirds = flockInfo.initialBirds;
+            
+            dailyData.forEach(row => {
+                totalMortality += row.mortality;
+                totalFeed += row.feed;
+                if (row.weight > 0) latestWeight = row.weight;
+            });
+            
+            const currentBirds = flockInfo.initialBirds - totalMortality;
+            const mortalityPercent = (totalMortality / flockInfo.initialBirds) * 100;
+            const avgWeight = latestWeight;
+            const totalMeat = (currentBirds * avgWeight) / 1000; // کیلوگرم
+            const fcr = totalMeat > 0 ? totalFeed / totalMeat : 0;
+            
+            // شاخص کارایی اروپایی
+            const epef = ((100 - mortalityPercent) * avgWeight) / (fcr * 10);
+            
+            return {
+                totalMortality,
+                mortalityPercent,
+                currentBirds,
+                totalFeed,
+                avgWeight,
+                totalMeat,
+                fcr,
+                epef,
+                age: dailyData[dailyData.length - 1]?.day || 0
+            };
+        }
+
+        function updateAllCalculations() {
+            const perf = calculateFlockPerformance();
+            if (!perf) return;
+            
+            // بروزرسانی کارت‌های اطلاعات
+            document.getElementById('currentAge').textContent = perf.age;
+            document.getElementById('currentBirds').textContent = perf.currentBirds.toLocaleString();
+            document.getElementById('avgWeight').textContent = perf.avgWeight.toFixed(0);
+            document.getElementById('totalFeed').textContent = perf.totalFeed.toLocaleString();
+            
+            // بروزرسانی خلاصه محاسبات
+            updateSummaryGrid(perf);
+            
+            // بروزرسانی نمودار
+            updateGrowthChart();
+            
+            // بروزرسانی توصیه‌ها
+            updateRecommendations(perf);
+        }
+
+        function updateSummaryGrid(perf) {
+            const grid = document.getElementById('summaryGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = `
+                <div class="summary-item">
+                    <h4>🐔 تلفات کل</h4>
+                    <div class="summary-value">${perf.totalMortality}</div>
+                    <small>${perf.mortalityPercent.toFixed(2)}%</small>
+                </div>
+                <div class="summary-item">
+                    <h4>⚖️ کل تولید گوشت</h4>
+                    <div class="summary-value">${perf.totalMeat.toFixed(0)}</div>
+                    <small>کیلوگرم</small>
+                </div>
+                <div class="summary-item">
+                    <h4>📊 ضریب تبدیل (FCR)</h4>
+                    <div class="summary-value">${perf.fcr.toFixed(2)}</div>
+                    <small>${perf.fcr < 1.7 ? '✅ عالی' : perf.fcr < 1.9 ? '⚠️ قابل قبول' : '❌ نیاز به بهبود'}</small>
+                </div>
+                <div class="summary-item">
+                    <h4>🎯 شاخص کارایی (EPEF)</h4>
+                    <div class="summary-value">${perf.epef.toFixed(0)}</div>
+                    <small>${perf.epef > 300 ? 'عالی' : perf.epef > 250 ? 'خوب' : 'متوسط'}</small>
+                </div>
+                <div class="summary-item">
+                    <h4>🥣 سرانه مصرف کل</h4>
+                    <div class="summary-value">${(perf.totalFeed / perf.currentBirds).toFixed(2)}</div>
+                    <small>کیلوگرم به ازای هر پرنده</small>
+                </div>
+                <div class="summary-item">
+                    <h4>💰 ارزش تولید</h4>
+                    <div class="summary-value">${(perf.totalMeat * 80000).toLocaleString()}</div>
+                    <small>تومان (تخمینی)</small>
+                </div>
+            `;
+        }
+
+        function updateGrowthChart() {
+            const ctx = document.getElementById('growthChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            // آماده‌سازی داده‌ها
+            const days = dailyData.map(d => d.day);
+            const weights = dailyData.map(d => d.weight);
+            const feedPerBird = dailyData.map((d, i) => {
+                let totalBirds = flockInfo.initialBirds;
+                for (let j = 0; j <= i; j++) {
+                    totalBirds -= dailyData[j].mortality;
+                }
+                return totalBirds > 0 ? (d.feed * 1000) / totalBirds : 0;
+            });
+            
+            if (growthChart) {
+                growthChart.destroy();
+            }
+            
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'وزن (گرم)',
+                        data: weights,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'سرانه مصرف (گرم)',
+                        data: feedPerBird,
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'نمودار رشد و مصرف دان'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'وزن (گرم)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'مصرف (گرم)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        },
+                    }
+                }
+            });
+        }
+
+        function updateRecommendations(perf) {
+            const recList = document.getElementById('recommendations');
+            if (!recList) return;
+            
+            let recommendations = [];
+            
+            // توصیه بر اساس تلفات
+            if (perf.mortalityPercent > 7) {
+                recommendations.push('🔴 تلفات بسیار بالا است - حتماً با دامپزشک مشورت کنید');
+            } else if (perf.mortalityPercent > 5) {
+                recommendations.push('🟡 تلفات بالاست - بررسی وضعیت بهداشت و تهویه');
+            } else if (perf.mortalityPercent < 3) {
+                recommendations.push('✅ تلفات عالی است - مدیریت خود را ادامه دهید');
+            }
+            
+            // توصیه بر اساس FCR
+            if (perf.fcr > 1.9) {
+                recommendations.push('🔴 FCR بالاست - کیفیت دان و مدیریت تغذیه را بررسی کنید');
+            } else if (perf.fcr < 1.6) {
+                recommendations.push('✅ FCR عالی است - برنامه غذایی مناسب است');
+            }
+            
+            // توصیه بر اساس وزن
+            const expectedWeight = perf.age * 60;
+            const weightDiff = ((perf.avgWeight - expectedWeight) / expectedWeight) * 100;
+            
+            if (weightDiff < -10) {
+                recommendations.push('🔴 وزن کمتر از استاندارد - تغذیه و سلامت را بررسی کنید');
+            } else if (weightDiff > 10) {
+                recommendations.push('✅ وزن بالاتر از استاندارد - رشد خوبی دارد');
+            }
+            
+            // توصیه بر اساس مصرف دان
+            const expectedFeed = perf.age * 100; // تقریبی
+            const actualFeed = perf.totalFeed / perf.currentBirds * 1000;
+            
+            if (actualFeed < expectedFeed * 0.8) {
+                recommendations.push('⚠️ مصرف دان کمتر از حد انتظار - اشتها را بررسی کنید');
+            }
+            
+            if (recommendations.length === 0) {
+                recommendations.push('✅ عملکرد خوب است - به همین روال ادامه دهید');
+            }
+            
+            recList.innerHTML = recommendations.map(r => `<li>${r}</li>`).join('');
+        }
+
+        // ================ توابع ذخیره‌سازی و خروجی ================
+        
+        function saveToLocalStorage() {
+            const data = {
+                flockInfo,
+                dailyData,
+                lastUpdate: new Date().toISOString()
+            };
+            
+            localStorage.setItem('poultryReport', JSON.stringify(data));
+            alert('✅ اطلاعات با موفقیت ذخیره شد');
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('poultryReport');
+            if (saved) {
+                const data = JSON.parse(saved);
+                flockInfo = data.flockInfo;
+                dailyData = data.dailyData || [];
+                
+                // بروزرسانی فرم
+                document.getElementById('entryDate').value = flockInfo.entryDate || '';
+                document.getElementById('initialBirds').value = flockInfo.initialBirds || 10000;
+                document.getElementById('flockName').value = flockInfo.flockName || 'سالن ۱';
+                document.getElementById('breed').value = flockInfo.breed || 'راس ۳۰۸';
+                
+                renderDailyTable();
+            }
+        }
+
+        function resetData() {
+            if (confirm('آیا از ریست کردن اطلاعات اطمینان دارید؟')) {
+                flockInfo = {
+                    entryDate: '',
+                    initialBirds: 10000,
+                    flockName: 'سالن ۱',
+                    breed: 'راس ۳۰۸'
+                };
+                dailyData = [];
+                
+                document.getElementById('entryDate').value = '';
+                document.getElementById('initialBirds').value = 10000;
+                document.getElementById('flockName').value = 'سالن ۱';
+                document.getElementById('breed').value = 'راس ۳۰۸';
+                
+                renderDailyTable();
+                saveToLocalStorage();
+            }
+        }
+
+        function exportToExcel() {
+            // آماده‌سازی داده‌ها برای خروجی
+            let csv = "روز,تاریخ,تلفات,دان مصرفی,وزن نمونه,توضیحات\n";
+            
+            dailyData.forEach(row => {
+                csv += `${row.day},${row.date},${row.mortality},${row.feed},${row.weight},"${row.notes || ''}"\n`;
+            });
+            
+            // اضافه کردن خلاصه
+            const perf = calculateFlockPerformance();
+            if (perf) {
+                csv += "\nخلاصه عملکرد\n";
+                csv += `کل تلفات,${perf.totalMortality}\n`;
+                csv += `درصد تلفات,${perf.mortalityPercent.toFixed(2)}%\n`;
+                csv += `تعداد فعلی,${perf.currentBirds}\n`;
+                csv += `میانگین وزن,${perf.avgWeight}\n`;
+                csv += `کل تولید گوشت,${perf.totalMeat} کیلوگرم\n`;
+                csv += `FCR,${perf.fcr.toFixed(2)}\n`;
+                csv += `EPEF,${perf.epef.toFixed(0)}\n`;
+            }
+            
+            // دانلود فایل
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `poultry_report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ================ مقداردهی اولیه ================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("✅ صفحه گزارش روزانه لود شد");
+            
+            // تلاش برای لود اطلاعات ذخیره شده
+            loadFromLocalStorage();
+            
+            // اگر داده‌ای نبود، داده‌های نمونه را لود کن
+            if (dailyData.length === 0) {
+                loadSampleData();
+            }
+            
+            // تنظیم تاریخ پیش‌فرض برای امروز
+            if (!document.getElementById('entryDate').value) {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('entryDate').value = today;
+                flockInfo.entryDate = today;
+            }
+            
+            updateFlockInfo();
+        });
+    </script>
+</body>
+</html>
