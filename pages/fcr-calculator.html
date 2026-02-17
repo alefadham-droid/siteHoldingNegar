@@ -6,6 +6,109 @@
     <title>ماشین حساب ضریب تبدیل - مرغداری</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .calculator-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 1.1em;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .result-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .status-excellent {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-good {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-poor {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .info-box {
+            background: #fff3e0;
+            border-right: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .info-box h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-box li {
+            margin-bottom: 10px;
+            color: #555;
+            padding-right: 25px;
+            position: relative;
+        }
+        
+        .info-box li:before {
+            content: "📌";
+            position: absolute;
+            right: 0;
+            color: #ff9800;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,25 +117,114 @@
             <a href="../index.html" class="btn" style="margin-top: 20px;">🏠 بازگشت به صفحه اصلی</a>
         </header>
 
-        <div class="data-table-section">
-            <div class="calculator-form">
-                <div class="form-group">
-                    <label>کل دان مصرفی (کیلوگرم):</label>
-                    <input type="number" id="totalFeed" placeholder="مثال: 5000">
-                </div>
-                <div class="form-group">
-                    <label>وزن کل پرندگان (کیلوگرم):</label>
-                    <input type="number" id="totalWeight" placeholder="مثال: 2500">
-                </div>
-                <div class="form-group">
-                    <label>تعداد پرندگان:</label>
-                    <input type="number" id="birdsCount" placeholder="مثال: 1000">
-                </div>
-                <button class="btn btn-success" onclick="calculateFCR()">محاسبه FCR</button>
-            </div>
+        <div class="calculator-container">
+            <div class="data-table-section">
+                <h2>📝 محاسبه ضریب تبدیل</h2>
+                
+                <div class="calculator-form">
+                    <!-- کل دان مصرفی -->
+                    <div class="form-group">
+                        <label>🥣 کل دان مصرفی (کیلوگرم):</label>
+                        <input type="number" id="fcrTotalFeed" placeholder="مثال: 8500" value="8500">
+                        <small style="color: #666;">مقدار کل دان مصرفی در دوره پرورش</small>
+                    </div>
 
-            <div class="results-section" id="fcrResult">
-                <!-- نتایج اینجا نمایش داده می‌شود -->
+                    <!-- وزن کل پرندگان -->
+                    <div class="form-group">
+                        <label>⚖️ وزن کل پرندگان (کیلوگرم):</label>
+                        <input type="number" id="fcrTotalWeight" placeholder="مثال: 4250" value="4250">
+                        <small style="color: #666;">وزن کل پرندگان آماده فروش</small>
+                    </div>
+
+                    <!-- تعداد پرندگان -->
+                    <div class="form-group">
+                        <label>🐔 تعداد پرندگان:</label>
+                        <input type="number" id="fcrBirdCount" placeholder="مثال: 2000" value="2000">
+                        <small style="color: #666;">تعداد پرندگان موجود در پایان دوره</small>
+                    </div>
+
+                    <!-- دکمه محاسبه -->
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="btn btn-success" onclick="window.calculateFCR()" style="font-size: 1.2em; padding: 15px 40px;">
+                            📊 محاسبه FCR
+                        </button>
+                    </div>
+                </div>
+
+                <!-- نتایج محاسبات -->
+                <div class="results-section" id="fcrResult" style="display: none;">
+                    <h3>نتایج محاسبات</h3>
+                    <div id="fcrResultContent">
+                        <!-- نتایج اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+
+                <!-- جدول راهنمای FCR -->
+                <div class="data-table-section" style="margin-top: 30px;">
+                    <h3>📋 استانداردهای ضریب تبدیل (FCR)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>سن (روز)</th>
+                                    <th>FCR عالی</th>
+                                    <th>FCR خوب</th>
+                                    <th>FCR متوسط</th>
+                                    <th>FCR ضعیف</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>۲۱ روز</td>
+                                    <td>زیر ۱.۲</td>
+                                    <td>۱.۲ - ۱.۳</td>
+                                    <td>۱.۳ - ۱.۴</td>
+                                    <td>بالای ۱.۴</td>
+                                </tr>
+                                <tr>
+                                    <td>۲۸ روز</td>
+                                    <td>زیر ۱.۳</td>
+                                    <td>۱.۳ - ۱.۴</td>
+                                    <td>۱.۴ - ۱.۵</td>
+                                    <td>بالای ۱.۵</td>
+                                </tr>
+                                <tr>
+                                    <td>۳۵ روز</td>
+                                    <td>زیر ۱.۴</td>
+                                    <td>۱.۴ - ۱.۵</td>
+                                    <td>۱.۵ - ۱.۶</td>
+                                    <td>بالای ۱.۶</td>
+                                </tr>
+                                <tr>
+                                    <td>۴۲ روز</td>
+                                    <td>زیر ۱.۵</td>
+                                    <td>۱.۵ - ۱.۶</td>
+                                    <td>۱.۶ - ۱.۷</td>
+                                    <td>بالای ۱.۷</td>
+                                </tr>
+                                <tr>
+                                    <td>۴۹ روز</td>
+                                    <td>زیر ۱.۶</td>
+                                    <td>۱.۶ - ۱.۷</td>
+                                    <td>۱.۷ - ۱.۸</td>
+                                    <td>بالای ۱.۸</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- نکات مهم -->
+                <div class="info-box">
+                    <h3>💡 نکات مهم در مورد ضریب تبدیل (FCR):</h3>
+                    <ul>
+                        <li>FCR کمتر نشان‌دهنده کارایی بالاتر پرنده در تبدیل دان به گوشت است</li>
+                        <li>FCR ایده‌آل برای مرغ گوشتی بین ۱.۵ تا ۱.۷ است</li>
+                        <li>عوامل موثر بر FCR: کیفیت دان، دما، تهویه، سلامت پرنده</li>
+                        <li>افزایش FCR به معنی افزایش هزینه تولید است</li>
+                        <li>FCR را به صورت هفتگی محاسبه و پایش کنید</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -42,5 +234,108 @@
     </footer>
 
     <script src="../js/calculator.js"></script>
+    
+    <!-- اسکریپت مخصوص این صفحه -->
+    <script>
+        window.calculateFCR = function() {
+            console.log("✅ دکمه محاسبه FCR کلیک شد");
+            
+            try {
+                // دریافت مقادیر از فرم
+                const totalFeed = parseFloat(document.getElementById('fcrTotalFeed')?.value);
+                const totalWeight = parseFloat(document.getElementById('fcrTotalWeight')?.value);
+                const birdCount = parseFloat(document.getElementById('fcrBirdCount')?.value);
+
+                console.log("مقادیر دریافت شد:", {totalFeed, totalWeight, birdCount});
+
+                // اعتبارسنجی
+                if (!totalFeed || !totalWeight || !birdCount) {
+                    alert("لطفاً همه فیلدها را پر کنید");
+                    return;
+                }
+
+                if (totalFeed <= 0 || totalWeight <= 0 || birdCount <= 0) {
+                    alert("مقادیر باید بزرگتر از صفر باشند");
+                    return;
+                }
+
+                // محاسبه FCR
+                const averageWeight = totalWeight / birdCount; // کیلوگرم
+                const fcr = totalFeed / totalWeight;
+
+                console.log("FCR محاسبه شد:", fcr);
+
+                // تعیین وضعیت
+                let status = '';
+                let statusClass = '';
+                let recommendation = '';
+
+                if (fcr < 1.5) {
+                    status = 'عالی';
+                    statusClass = 'status-excellent';
+                    recommendation = '✅ عملکرد عالی! برنامه غذایی خود را ادامه دهید.';
+                } else if (fcr < 1.7) {
+                    status = 'خوب';
+                    statusClass = 'status-good';
+                    recommendation = '👍 عملکرد قابل قبول است، قابل بهبود می‌باشد.';
+                } else if (fcr < 1.9) {
+                    status = 'متوسط';
+                    statusClass = 'status-good';
+                    recommendation = '⚠️ نیاز به بررسی و بهبود دارد.';
+                } else {
+                    status = 'ضعیف';
+                    statusClass = 'status-poor';
+                    recommendation = '❌ نیاز فوری به بررسی و اصلاح دارد.';
+                }
+
+                // نمایش نتایج
+                const resultDiv = document.getElementById('fcrResult');
+                const resultContent = document.getElementById('fcrResultContent');
+                
+                if (resultDiv && resultContent) {
+                    resultContent.innerHTML = `
+                        <div class="result-item">
+                            <h4>ضریب تبدیل غذایی (FCR)</h4>
+                            <div class="result-value">${fcr.toFixed(2)}</div>
+                            <div class="status-badge ${statusClass}">${status}</div>
+                            <p style="margin-top: 15px; color: #555;">${recommendation}</p>
+                            <hr style="margin: 20px 0;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <small>میانگین وزن هر پرنده</small>
+                                    <div style="font-size: 1.2em; font-weight: bold;">${averageWeight.toFixed(2)} کیلوگرم</div>
+                                </div>
+                                <div>
+                                    <small>کل دان مصرفی به ازای هر پرنده</small>
+                                    <div style="font-size: 1.2em; font-weight: bold;">${(totalFeed / birdCount).toFixed(2)} کیلوگرم</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    resultDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("خطا در محاسبه FCR:", error);
+                alert("خطا در محاسبات. لطفاً دوباره تلاش کنید.");
+            }
+        };
+
+        // محاسبه خودکار با Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['fcrTotalFeed', 'fcrTotalWeight', 'fcrBirdCount'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            window.calculateFCR();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
