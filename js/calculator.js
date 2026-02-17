@@ -1,10 +1,120 @@
+// ================ توابع تبدیل تاریخ شمسی ================
+
+function gregorianToJalali(gy, gm, gd) {
+    let g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+    
+    let gy2 = (gm > 2) ? (gy + 1) : gy;
+    let days = 365 * (gy + 1) + Math.floor((gy2 - 1) / 4) - Math.floor((gy2 - 1) / 100) + Math.floor((gy2 - 1) / 400);
+    
+    for (let i = 0; i < gm - 1; i++) {
+        if (i === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0)) {
+            days += 29;
+        } else {
+            days += g_days_in_month[i];
+        }
+    }
+    days += gd;
+    
+    let jy = 979;
+    let jm = 1;
+    let jd = 1;
+    
+    days -= 226896;
+    
+    while (days >= (365 * 4 + 1) * 4) {
+        days -= (365 * 4 + 1) * 4;
+        jy += 4;
+    }
+    
+    while (days >= 365) {
+        if ((jy % 4 === 2 && jy % 128 !== 0) || (jy % 1320 === 3)) {
+            days -= 366;
+        } else {
+            days -= 365;
+        }
+        jy++;
+    }
+    
+    while (days >= j_days_in_month[jm - 1]) {
+        days -= j_days_in_month[jm - 1];
+        jm++;
+    }
+    
+    jd = days + 1;
+    
+    return { jy, jm, jd };
+}
+
+function jalaliToGregorian(jy, jm, jd) {
+    let j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+    
+    let days = 0;
+    for (let i = 0; i < jm - 1; i++) {
+        days += j_days_in_month[i];
+    }
+    days += jd;
+    
+    let gy = jy - 979;
+    let gm = 1;
+    let gd = 1;
+    
+    days += 79;
+    
+    if (days > 366 && (gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2)) {
+        days--;
+    }
+    
+    while (days > 365) {
+        if ((gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2)) {
+            days -= 366;
+        } else {
+            days -= 365;
+        }
+        gy++;
+    }
+    
+    if (days === 0) {
+        gy--;
+        days = (gy % 4 === 1 && gy % 128 !== 0) || (gy % 1320 === 2) ? 366 : 365;
+    }
+    
+    for (let i = 0; i < 12; i++) {
+        let monthDays = i === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0) ? 29 : 
+                        [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][i];
+        
+        if (days <= monthDays) {
+            gm = i + 1;
+            gd = days;
+            break;
+        }
+        days -= monthDays;
+    }
+    
+    return { gy, gm, gd };
+}
+
+function getTodayJalali() {
+    const today = new Date();
+    const j = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    return `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
+}
+
+function jalaliToDateString(jalaliDate) {
+    if (!jalaliDate || !jalaliDate.includes('/')) return new Date().toISOString().split('T')[0];
+    
+    const [jy, jm, jd] = jalaliDate.split('/').map(Number);
+    const g = jalaliToGregorian(jy, jm, jd);
+    return `${g.gy}-${g.gm.toString().padStart(2, '0')}-${g.gd.toString().padStart(2, '0')}`;
+}
+
 // ================ توابع مدیریت جدول ================
 
 let dataRows = [
     { day: 1, birds: 1000, weight: 150, feed: 50, mortality: 2 }
 ];
 
-// نمایش جدول
+// نمایش جدول با تاریخ شمسی
 window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
     if (!tbody) return;
@@ -12,9 +122,23 @@ window.renderTable = function() {
     tbody.innerHTML = '';
     
     dataRows.forEach((row, index) => {
+        // محاسبه تاریخ شمسی بر اساس روز
+        let jalaliDate = '1402/12/01';
+        if (index === 0) {
+            jalaliDate = document.getElementById('jalaliDate')?.textContent || '1402/12/01';
+        } else {
+            // محاسبه تاریخ روزهای بعد (فرض می‌کنیم هر روز یک روز بعد است)
+            const [jy, jm, jd] = jalaliDate.split('/').map(Number);
+            const g = jalaliToGregorian(jy, jm, jd);
+            const date = new Date(g.gy, g.gm - 1, g.gd + index);
+            const j = gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            jalaliDate = `${j.jy}/${j.jm.toString().padStart(2, '0')}/${j.jd.toString().padStart(2, '0')}`;
+        }
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><input type="number" value="${row.day}" onchange="updateRow(${index}, 'day', this.value)"></td>
+            <td><input type="text" value="${jalaliDate}" onchange="updateRowDate(${index}, this.value)" placeholder="1402/12/01"></td>
             <td><input type="number" value="${row.birds}" onchange="updateRow(${index}, 'birds', this.value)"></td>
             <td><input type="number" value="${row.weight}" onchange="updateRow(${index}, 'weight', this.value)"></td>
             <td><input type="number" value="${row.feed}" onchange="updateRow(${index}, 'feed', this.value)"></td>
@@ -23,6 +147,15 @@ window.renderTable = function() {
         `;
         tbody.appendChild(tr);
     });
+}
+
+// تابع جدید برای به‌روزرسانی تاریخ
+window.updateRowDate = function(index, value) {
+    // تاریخ رو ذخیره می‌کنیم توی یک ویژگی سفارشی
+    if (!dataRows[index].jalaliDate) {
+        dataRows[index].jalaliDate = {};
+    }
+    dataRows[index].jalaliDate = value;
 }
 
 // افزودن ردیف جدید
