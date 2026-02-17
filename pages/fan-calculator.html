@@ -138,6 +138,7 @@
                 </div>
 
                 <div style="text-align: center; margin: 20px 0;">
+                    <!-- خط 134: اصلاح شد - اسم تابع درست شد -->
                     <button class="btn btn-success" onclick="window.calculateFanVentilation()" style="font-size: 1.2em; padding: 15px 40px;">
                         🌀 محاسبه تهویه و تنظیم دور فن
                     </button>
@@ -211,99 +212,114 @@
     <script>
         // این تابع مخصوص همین صفحه است و مستقیماً توابع را فراخوانی می‌کند
         window.calculateFanVentilation = function() {
-            console.log("دکمه محاسبه کلیک شد");
+            console.log("✅ دکمه محاسبه کلیک شد");
             
-            // دریافت مقادیر از فرم
-            const age = parseFloat(document.getElementById('fanBirdAge')?.value) || 25;
-            const weight = parseFloat(document.getElementById('fanBirdWeight')?.value) || 1500;
-            const count = parseFloat(document.getElementById('fanBirdCount')?.value) || 10000;
-            const temperature = parseFloat(document.getElementById('fanTemperature')?.value) || 28;
-            const humidity = parseFloat(document.getElementById('fanHumidity')?.value) || 60;
-            const fanCapacity = parseFloat(document.getElementById('fanCapacity')?.value) || 15000;
-            const fanCount = parseFloat(document.getElementById('fanCount')?.value) || 4;
+            try {
+                // دریافت مقادیر از فرم
+                const age = parseFloat(document.getElementById('fanBirdAge')?.value) || 25;
+                const weight = parseFloat(document.getElementById('fanBirdWeight')?.value) || 1500;
+                const count = parseFloat(document.getElementById('fanBirdCount')?.value) || 10000;
+                const temperature = parseFloat(document.getElementById('fanTemperature')?.value) || 28;
+                const humidity = parseFloat(document.getElementById('fanHumidity')?.value) || 60;
+                const fanCapacity = parseFloat(document.getElementById('fanCapacity')?.value) || 15000;
+                const fanCount = parseFloat(document.getElementById('fanCount')?.value) || 4;
 
-            // تبدیل وزن به کیلوگرم
-            const weightKg = weight / 1000;
-            
-            // محاسبه وزن کل پرندگان (کیلوگرم)
-            const totalWeight = count * weightKg;
+                console.log("مقادیر دریافت شد:", {age, weight, count, temperature, humidity, fanCapacity, fanCount});
 
-            // محاسبه تهویه بر اساس استانداردهای پرورش طیور
-            const minVentilationPerKg = 0.3; // CFM
-            const minVentilationCFM = totalWeight * minVentilationPerKg;
-            const minVentilationM3h = minVentilationCFM * 1.699;
+                // تبدیل وزن به کیلوگرم
+                const weightKg = weight / 1000;
+                
+                // محاسبه وزن کل پرندگان (کیلوگرم)
+                const totalWeight = count * weightKg;
 
-            const maxVentilationPerKg = 4; // CFM
-            const maxVentilationCFM = totalWeight * maxVentilationPerKg;
-            const maxVentilationM3h = maxVentilationCFM * 1.699;
+                // محاسبه تهویه بر اساس استانداردهای پرورش طیور
+                const minVentilationPerKg = 0.3; // CFM
+                const minVentilationCFM = totalWeight * minVentilationPerKg;
+                const minVentilationM3h = minVentilationCFM * 1.699;
 
-            // ضریب دما
-            let temperatureFactor = 1;
-            if (temperature < 20) temperatureFactor = 0.7;
-            else if (temperature < 25) temperatureFactor = 0.85;
-            else if (temperature < 30) temperatureFactor = 1;
-            else if (temperature < 35) temperatureFactor = 1.3;
-            else temperatureFactor = 1.6;
+                const maxVentilationPerKg = 4; // CFM
+                const maxVentilationCFM = totalWeight * maxVentilationPerKg;
+                const maxVentilationM3h = maxVentilationCFM * 1.699;
 
-            // ضریب رطوبت
-            let humidityFactor = 1;
-            if (humidity > 80) humidityFactor = 1.4;
-            else if (humidity > 70) humidityFactor = 1.2;
-            else if (humidity < 40) humidityFactor = 0.8;
+                // ضریب دما
+                let temperatureFactor = 1;
+                if (temperature < 20) temperatureFactor = 0.7;
+                else if (temperature < 25) temperatureFactor = 0.85;
+                else if (temperature < 30) temperatureFactor = 1;
+                else if (temperature < 35) temperatureFactor = 1.3;
+                else temperatureFactor = 1.6;
 
-            // تهویه توصیه شده
-            const recommendedVentilation = minVentilationM3h + 
-                ((maxVentilationM3h - minVentilationM3h) * ((temperatureFactor + humidityFactor) / 2 - 0.5));
+                // ضریب رطوبت
+                let humidityFactor = 1;
+                if (humidity > 80) humidityFactor = 1.4;
+                else if (humidity > 70) humidityFactor = 1.2;
+                else if (humidity < 40) humidityFactor = 0.8;
 
-            // تعداد فن مورد نیاز
-            const fansNeeded = Math.ceil(recommendedVentilation / fanCapacity);
-            
-            // درصد دور فن
-            let fanSpeedPercent = 0;
-            let fansToRun = 0;
-            
-            if (fansNeeded <= fanCount) {
-                fanSpeedPercent = Math.min(100, Math.round((recommendedVentilation / (fanCount * fanCapacity)) * 100));
-                fansToRun = fanCount;
-            } else {
-                fanSpeedPercent = 100;
-                fansToRun = fanCount;
+                // تهویه توصیه شده
+                const recommendedVentilation = minVentilationM3h + 
+                    ((maxVentilationM3h - minVentilationM3h) * ((temperatureFactor + humidityFactor) / 2 - 0.5));
+
+                // تعداد فن مورد نیاز
+                const fansNeeded = Math.ceil(recommendedVentilation / fanCapacity);
+                
+                // درصد دور فن
+                let fanSpeedPercent = 0;
+                let fansToRun = 0;
+                
+                if (fansNeeded <= fanCount) {
+                    fanSpeedPercent = Math.min(100, Math.round((recommendedVentilation / (fanCount * fanCapacity)) * 100));
+                    fansToRun = fanCount;
+                } else {
+                    fanSpeedPercent = 100;
+                    fansToRun = fanCount;
+                }
+
+                // زمان چرخه
+                const cycleTime = 300;
+                let onTime = 0;
+                
+                if (recommendedVentilation < minVentilationM3h * 1.5) {
+                    onTime = Math.round((recommendedVentilation / (fanCapacity * fansToRun)) * cycleTime);
+                    onTime = Math.min(cycleTime, Math.max(30, onTime));
+                }
+
+                console.log("محاسبات انجام شد");
+
+                // نمایش نتایج
+                displayFanResults({
+                    minVentilation: minVentilationM3h,
+                    maxVentilation: maxVentilationM3h,
+                    recommended: recommendedVentilation,
+                    fansNeeded: fansNeeded,
+                    fansToRun: fansToRun,
+                    fanSpeed: fanSpeedPercent,
+                    onTime: onTime,
+                    cycleTime: cycleTime,
+                    temperature,
+                    humidity,
+                    age,
+                    weightKg,
+                    count
+                });
+
+                // بروزرسانی جدول
+                updateFanTable(age);
+                
+                console.log("✅ نمایش نتایج کامل شد");
+                
+            } catch (error) {
+                console.error("خطا در محاسبات:", error);
+                alert("خطا در محاسبات. لطفاً کنسول را بررسی کنید.");
             }
-
-            // زمان چرخه
-            const cycleTime = 300;
-            let onTime = 0;
-            
-            if (recommendedVentilation < minVentilationM3h * 1.5) {
-                onTime = Math.round((recommendedVentilation / (fanCapacity * fansToRun)) * cycleTime);
-                onTime = Math.min(cycleTime, Math.max(30, onTime));
-            }
-
-            // نمایش نتایج
-            displayFanResults({
-                minVentilation: minVentilationM3h,
-                maxVentilation: maxVentilationM3h,
-                recommended: recommendedVentilation,
-                fansNeeded: fansNeeded,
-                fansToRun: fansToRun,
-                fanSpeed: fanSpeedPercent,
-                onTime: onTime,
-                cycleTime: cycleTime,
-                temperature,
-                humidity,
-                age,
-                weightKg,
-                count
-            });
-
-            // بروزرسانی جدول
-            updateFanTable(age);
         };
 
         // تابع نمایش نتایج
         function displayFanResults(data) {
             const grid = document.getElementById('ventilationGrid');
-            if (!grid) return;
+            if (!grid) {
+                console.error("المنت ventilationGrid پیدا نشد");
+                return;
+            }
             
             let ventilationStatus = '';
             let statusColor = '';
@@ -321,7 +337,7 @@
 
             grid.innerHTML = `
                 <div class="result-item" style="background: ${statusColor}; color: white;">
-                    <h4 style="color: white;">وضعیت تهویه</h4>
+                    <h4 style="color: white; margin:0;">وضعیت تهویه</h4>
                     <div class="result-value" style="color: white; font-size: 1.3em;">${ventilationStatus}</div>
                 </div>
                 
@@ -378,7 +394,10 @@
         // تابع بروزرسانی جدول
         function updateFanTable(currentAge) {
             const tbody = document.getElementById('fanScheduleBody');
-            if (!tbody) return;
+            if (!tbody) {
+                console.error("المنت fanScheduleBody پیدا نشد");
+                return;
+            }
             
             tbody.innerHTML = '';
             
@@ -415,13 +434,26 @@
                 
                 tbody.appendChild(row);
             });
+            
+            console.log("جدول بروزرسانی شد");
         }
 
         // اجرای اولیه هنگام بارگذاری صفحه
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("صفحه فن لود شد");
+            console.log("✅ صفحه فن لود شد");
             // نمایش جدول پیش‌فرض
             updateFanTable(25);
+            
+            // اضافه کردن event listener به اینپوت‌ها برای محاسبه خودکار (اختیاری)
+            const inputs = ['fanBirdAge', 'fanBirdWeight', 'fanBirdCount', 'fanTemperature', 'fanHumidity', 'fanCapacity', 'fanCount'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', function() {
+                        console.log(`مقدار ${id} تغییر کرد`);
+                    });
+                }
+            });
         });
     </script>
 </body>
