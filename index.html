@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماشین حساب مرغداری</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧮 ماشین حساب تخصصی مرغداری</h1>
+            <p>محاسبه دقیق پارامترهای پرورش طیور</p>
+        </header>
+
+        <div class="cards-grid">
+            <!-- کارت ماشین حساب ضریب تبدیل -->
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h2>ضریب تبدیل غذایی (FCR)</h2>
+                <p>محاسبه ضریب تبدیل خوراک به گوشت</p>
+                <a href="pages/fcr-calculator.html" class="btn">محاسبه</a>
+            </div>
+
+            <!-- کارت ماشین حساب تلفات -->
+            <div class="card">
+                <div class="card-icon">📉</div>
+                <h2>درصد تلفات</h2>
+                <p>محاسبه تلفات و هزینه های ناشی از آن</p>
+                <a href="pages/mortality-calculator.html" class="btn">محاسبه</a>
+            </div>
+
+            <!-- کارت ماشین حساب دانخوری -->
+            <div class="card">
+                <div class="card-icon">⚖️</div>
+                <h2>سرانه مصرف دان</h2>
+                <p>بررسی مصرف دان نسبت به وزن پرنده</p>
+                <a href="pages/feed-conversion.html" class="btn">محاسبه</a>
+            </div>
+        </div>
+
+        <!-- جدول ثبت داده‌ها -->
+        <div class="data-table-section">
+            <h2>📋 ثبت داده‌های روزانه</h2>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>روز پرورش</th>
+                            <th>تعداد پرنده</th>
+                            <th>وزن (گرم)</th>
+                            <th>دان مصرفی (کیلوگرم)</th>
+                            <th>تلفات</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- ردیف‌ها با JavaScript اضافه می‌شوند -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-controls">
+                <button class="btn btn-success" onclick="addRow()">➕ افزودن ردیف</button>
+                <button class="btn btn-primary" onclick="calculateAll()">📊 محاسبه نهایی</button>
+                <button class="btn btn-danger" onclick="resetTable()">🔄 ریست جدول</button>
+            </div>
+
+            <!-- نتایج محاسبات -->
+            <div class="results-section" id="resultsSection">
+                <h3>نتایج محاسبات</h3>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- نتایج اینجا نمایش داده می‌شود -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>تمامی حقوق محفوظ است © ۱۴۰۴</p>
+    </footer>
+
+    <script src="js/calculator.js"></script>
+</body>
+</html>
